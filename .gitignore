@@ -1,0 +1,35 @@
+
+# .NET build files
+bin/
+obj/
+artifacts/
+TestResults/
+
+# JetBrains Rider
+.idea/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+
+# Logs
+*.log
+
+# Certificates and local databases
+*.pfx
+*.sqlite
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db
