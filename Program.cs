@@ -18,10 +18,12 @@ builder.Services.AddSingleton(
 builder.Services.AddControllersWithViews();
 builder.Services.AddValidation();
 
-
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<PasswordHasher<User>>();
+builder.Services.AddScoped<PasswordHasher<UserModel>>();
+
+builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<TaskRepository>();
 var app = builder.Build();
 
 app.MapGet("/", () =>
@@ -85,5 +87,38 @@ app.MapPost("/api/users/login", async (LoginUserDto request, UserService userSer
 
 });
 
+app.MapGet("/api/tasks", async (TaskService taskService) =>
+{
+    var tasks = await taskService.GetAllTaskAsync();
+    return Results.Ok(tasks.Select(t => new
+    {
+        t.task_title,
+        t.task_description,
+        t.user_id,
+    }));
+});
+
+app.MapPost("/api/task/create-task", async (CreateTaskDto request, TaskService taskService) =>
+{
+    var task = await taskService.CreateTaskAsync(request);
+
+    if (task is null)
+    {
+        return Results.BadRequest(new
+        {
+            message = "Invalid task data or task title/task description"
+        });
+    }
+
+    return Results.Created(
+        $"/api/tasks/{task.user_id}",
+        new
+        {
+            task.task_title,
+            task.task_description,
+            task.user_id
+        }
+    );
+});
 
 app.Run();

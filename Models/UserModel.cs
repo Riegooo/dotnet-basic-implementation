@@ -1,6 +1,6 @@
 namespace WebApplication1.Models;
 
-public class User
+public class UserModel
 {
     public int id{ get;set; }
     public string username { get; set; } = "";
