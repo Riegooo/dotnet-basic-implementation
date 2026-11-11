@@ -8,50 +8,46 @@ namespace WebApplication1.Services;
 public class UserService
 {
     private readonly UserRepository _userRepository;
-    private readonly PasswordHasher<User>  _passwordHasher;
+    private readonly PasswordHasher<UserModel>  _passwordHasher;
     
     public UserService(
         UserRepository userRepository,
-        PasswordHasher<User> passwordHasher)
+        PasswordHasher<UserModel> passwordHasher)
 
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
     }
 
-    public async Task<List<User?>> GetAllUsersAsync()
+    public async Task<List<UserModel?>> GetAllUsersAsync()
     {
         return await _userRepository.GetAllUsers();
     }
     
-    public async Task<User?> RegisterAsync(RegisterUserDto request)
+    public async Task<UserModel?> RegisterAsync(RegisterUserDto request)
     {
-        // Check if the fields are empty
         if (string.IsNullOrWhiteSpace(request.username) ||
             string.IsNullOrWhiteSpace(request.email) ||
             string.IsNullOrWhiteSpace(request.password))
         {
             return null;
         }
-        
-        // set the data in user
-        var user = new User
+
+        var user = new UserModel
         {
             username = request.username,
             email = request.email
         };
         
-        // convert the password into hash password
         user.passwordHash = _passwordHasher.HashPassword(
             user,
             request.password
         );
 
-        // put the data in users Database
         return await _userRepository.CreateUser(user);
     }
 
-    public async Task<User?> LoginAsync(LoginUserDto request)
+    public async Task<UserModel?> LoginAsync(LoginUserDto request)
     {
         if (String.IsNullOrEmpty(request.username) ||
             String.IsNullOrEmpty(request.password))
@@ -59,23 +55,19 @@ public class UserService
             return null;
         }
 
-        // Find the username if existing
         var userFind = await _userRepository.FindbyUsername(request.username);
         
-        // checks if user is null
         if (userFind is null)
         {
             return null;
         }
     
-        // verify or comparing the password AND hash password
         var result = _passwordHasher.VerifyHashedPassword(
             userFind,
             userFind.passwordHash,
             request.password
         );
     
-        // validating if password verification is failed
         if (result == PasswordVerificationResult.Failed)
         {
             return null;
@@ -83,6 +75,8 @@ public class UserService
         
         return userFind;
     }
+    
+    
 
 }
 

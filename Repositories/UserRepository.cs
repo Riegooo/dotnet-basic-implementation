@@ -12,7 +12,7 @@ public class UserRepository
         _database = dataSource;
     }
 
-    public async Task<User> CreateUser(User user)
+    public async Task<UserModel> CreateUser(UserModel user)
     {
         const string sql = """
                            INSERT INTO users (username, email, password_hash)
@@ -34,7 +34,7 @@ public class UserRepository
                 "The database did not return the created user.");
         }
 
-        return new User
+        return new UserModel
         {
             id = reader.GetInt32(0),
             username = reader.GetString(1),
@@ -43,7 +43,7 @@ public class UserRepository
 
     }
 
-    public async Task<List<User>> GetAllUsers()
+    public async Task<List<UserModel>> GetAllUsers()
     {
         const string sql = """
                            SELECT  id, username, email
@@ -51,14 +51,14 @@ public class UserRepository
                            ORDER BY id;
                            """;
         
-        var users = new List<User>();
+        var users = new List<UserModel>();
 
         await using var command = _database.CreateCommand(sql);
         await using var reader = await command.ExecuteReaderAsync();
 
         while (await reader.ReadAsync())
         {
-            users.Add(new User
+            users.Add(new UserModel
             {
                 id = reader.GetInt32(0),
                 username = reader.GetString(1),
@@ -69,7 +69,7 @@ public class UserRepository
         return users;
     }
 
-    public async Task<User> FindbyUsername(string username)
+    public async Task<UserModel> FindbyUsername(string username)
     {
         const string sql = """
                            SELECT id, username, email, password_hash
@@ -87,7 +87,7 @@ public class UserRepository
             return null;
         }
 
-        return new User
+        return new UserModel
         {
             id = reader.GetInt32(0),
             username = reader.GetString(1),
